@@ -39,6 +39,9 @@ class DownloadPreferences(
 
     fun parallelSourceLimit() = preferenceStore.getInt("download_parallel_source_limit", 5)
 
+    fun parallelDownloadsPerSourceLimit() = preferenceStore.getInt("download_parallel_downloads_per_source_limit", 1)
+
+
     fun parallelPageLimit() = preferenceStore.getInt("download_parallel_page_limit", 5)
 
     companion object {

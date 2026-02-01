@@ -38,6 +38,7 @@ object SettingsDownloadScreen : SearchableSettings {
 
         val downloadPreferences = remember { Injekt.get<DownloadPreferences>() }
         val parallelSourceLimit by downloadPreferences.parallelSourceLimit().collectAsState()
+        val parallelDownloadsPerSourceLimit by downloadPreferences.parallelDownloadsPerSourceLimit().collectAsState()
         val parallelPageLimit by downloadPreferences.parallelPageLimit().collectAsState()
         return listOf(
             Preference.PreferenceItem.SwitchPreference(
@@ -58,6 +59,12 @@ object SettingsDownloadScreen : SearchableSettings {
                 valueRange = 1..10,
                 title = stringResource(MR.strings.pref_download_concurrent_sources),
                 onValueChanged = { downloadPreferences.parallelSourceLimit().set(it) },
+            ),
+            Preference.PreferenceItem.SliderPreference(
+                value = parallelDownloadsPerSourceLimit,
+                valueRange = 1..10,
+                title = stringResource(MR.strings.pref_download_concurrent_downloads_per_source),
+                onValueChanged = { downloadPreferences.parallelDownloadsPerSourceLimit().set(it) },
             ),
             Preference.PreferenceItem.SliderPreference(
                 value = parallelPageLimit,
