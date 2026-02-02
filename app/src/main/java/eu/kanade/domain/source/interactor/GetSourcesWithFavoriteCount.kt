@@ -18,7 +18,7 @@ class GetSourcesWithFavoriteCount(
         return combine(
             preferences.migrationSortingDirection().changes(),
             preferences.migrationSortingMode().changes(),
-            repository.getSourcesWithFavoriteCount(),
+            repository.getSourcesWithFavoriteCount(preferences.disabledSources().changes()),
         ) { direction, mode, list ->
             list
                 .filterNot { it.first.isLocal() }

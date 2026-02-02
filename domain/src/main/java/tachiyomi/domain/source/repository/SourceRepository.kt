@@ -15,7 +15,7 @@ interface SourceRepository {
 
     fun getOnlineSources(): Flow<List<Source>>
 
-    fun getSourcesWithFavoriteCount(): Flow<List<Pair<Source, Long>>>
+    fun getSourcesWithFavoriteCount(disabledSources: Flow<Set<String>>): Flow<List<Pair<Source, Long>>>
 
     fun getSourcesWithNonLibraryManga(): Flow<List<SourceWithCount>>
 
