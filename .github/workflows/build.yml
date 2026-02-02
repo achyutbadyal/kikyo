@@ -105,7 +105,7 @@ jobs:
           APP_NAME="Kikyo"
           BUILD_TYPE="${{ github.event.inputs.build_type }}"
 
-          MESSAGE=$(printf "📦 *$APP_NAME*\n🔢 *Version:* $VERSION\n🛠 *Build:* ${BUILD_TYPE^^}\n\n⬇️ APKs:")
+          MESSAGE=$(printf "📦 *$APP_NAME*\n🔢 *Version:* $VERSION\n🛠 *Build:* ${BUILD_TYPE^^}")
 
           curl -s -X POST "https://api.telegram.org/bot$BOT_TOKEN/sendMessage" \
             -d chat_id="$CHAT_ID" \
