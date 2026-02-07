@@ -23,7 +23,9 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import tachiyomi.presentation.core.util.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -34,6 +36,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
 import cafe.adriel.voyager.navigator.tab.TabNavigator
 import eu.kanade.domain.source.service.SourcePreferences
+import eu.kanade.domain.ui.UiPreferences
 import eu.kanade.presentation.util.Screen
 import eu.kanade.presentation.util.isTabletUi
 import eu.kanade.tachiyomi.ui.browse.BrowseTab
@@ -71,19 +74,34 @@ object HomeScreen : Screen() {
     @Suppress("ConstPropertyName")
     private const val TabNavigatorKey = "HomeTabs"
 
-    private val TABS = listOf(
-        LibraryTab,
-        UpdatesTab,
-        HistoryTab,
-        BrowseTab,
-        MoreTab,
-    )
+
 
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
+        val uiPreferences = remember { Injekt.get<UiPreferences>() }
+        
+        val defaultTab = remember {
+            HomeTabs.Default.map { tab -> 
+                HomeTabs.Map.entries.first { it.value.tab == tab }.key 
+            }
+        }
+        
+        val tabsPref = remember { uiPreferences.bottomBarTabs(defaultTab) }
+        val tabsState by tabsPref.collectAsState()
+        
+        val tabs = remember(tabsState) {
+            tabsState.mapNotNull { HomeTabs.Map[it]?.tab }
+        }
+        
+        val startScreenPref = remember { uiPreferences.startScreen() }
+        val startScreenKey by startScreenPref.collectAsState()
+        val startTab = remember(startScreenKey) {
+            HomeTabs.Map[startScreenKey]?.tab ?: LibraryTab
+        }
+
         TabNavigator(
-            tab = LibraryTab,
+            tab = startTab,
             key = TabNavigatorKey,
         ) { tabNavigator ->
             // Provide usable navigator to content screen
@@ -92,7 +110,7 @@ object HomeScreen : Screen() {
                     startBar = {
                         if (isTabletUi()) {
                             NavigationRail {
-                                TABS.fastForEach {
+                                tabs.fastForEach {
                                     NavigationRailItem(it)
                                 }
                             }
@@ -109,7 +127,7 @@ object HomeScreen : Screen() {
                                 exit = shrinkVertically(),
                             ) {
                                 NavigationBar {
-                                    TABS.fastForEach {
+                                    tabs.fastForEach {
                                         NavigationBarItem(it)
                                     }
                                 }
@@ -138,10 +156,18 @@ object HomeScreen : Screen() {
                     }
                 }
             }
+            
+            LaunchedEffect(tabs) {
+                if (tabNavigator.current !in tabs && tabs.isNotEmpty()) {
+                    tabNavigator.current = tabs.first()
+                }
+            }
+
+            val goToStartTab = { tabNavigator.current = startTab }
+
+            BackHandler(enabled = tabNavigator.current != startTab, onBack = goToStartTab)
 
             val goToLibraryTab = { tabNavigator.current = LibraryTab }
-
-            BackHandler(enabled = tabNavigator.current != LibraryTab, onBack = goToLibraryTab)
 
             LaunchedEffect(Unit) {
                 launch {

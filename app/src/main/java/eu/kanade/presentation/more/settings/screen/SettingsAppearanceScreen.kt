@@ -41,6 +41,7 @@ object SettingsAppearanceScreen : SearchableSettings {
         return listOf(
             getThemeGroup(uiPreferences = uiPreferences),
             getDisplayGroup(uiPreferences = uiPreferences),
+            getNavigationGroup(uiPreferences = uiPreferences),
         )
     }
 
@@ -148,6 +149,21 @@ object SettingsAppearanceScreen : SearchableSettings {
                 Preference.PreferenceItem.SwitchPreference(
                     preference = uiPreferences.imagesInDescription(),
                     title = stringResource(MR.strings.pref_display_images_description),
+                ),
+            ),
+        )
+    }
+    @Composable
+    private fun getNavigationGroup(
+        uiPreferences: UiPreferences,
+    ): Preference.PreferenceGroup {
+        val navigator = LocalNavigator.currentOrThrow
+        return Preference.PreferenceGroup(
+            title = stringResource(MR.strings.pref_category_navigation),
+            preferenceItems = persistentListOf(
+                Preference.PreferenceItem.TextPreference(
+                    title = stringResource(MR.strings.pref_bottom_nav_tabs),
+                    onClick = { navigator.push(SettingsBottomNavScreen) },
                 ),
             ),
         )

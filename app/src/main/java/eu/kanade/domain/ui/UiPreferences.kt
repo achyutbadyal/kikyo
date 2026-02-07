@@ -36,6 +36,15 @@ class UiPreferences(
 
     fun imagesInDescription() = preferenceStore.getBoolean("pref_render_images_description", true)
 
+    fun bottomBarTabs(defaultValue: List<String>) = preferenceStore.getObjectFromString(
+        key = "bottom_nav_tabs",
+        defaultValue = defaultValue,
+        serializer = { it.joinToString(",") },
+        deserializer = { it.split(",").filter { s -> s.isNotEmpty() } },
+    )
+
+    fun startScreen() = preferenceStore.getString("bottom_nav_start_screen", "library")
+
     companion object {
         fun dateFormat(format: String): DateTimeFormatter = when (format) {
             "" -> DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT)
